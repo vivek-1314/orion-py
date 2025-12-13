@@ -46,3 +46,8 @@ Key Learning: ```LLMs are powerful at reasoning, but unreliable as system contro
 - When it should be retrieved
 - When LLMs are truly necessary
 - This shift resulted in a more modular, efficient, and observable system.
+
+![memory Architecture](docs/images/mem_1.jpg)
+![memory Architecture](docs/images/mem_2.jpg)
+![System Architecture](docs/images/langgrapph_1.jpg)
+![System Architecture](docs/images/langgrapph_2.jpg)
