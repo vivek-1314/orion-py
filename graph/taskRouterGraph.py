@@ -1,67 +1,79 @@
 from langgraph.graph import StateGraph , START , END
-from states.taskRouterState import TaskRouterState 
-from nodes.intentClassifier import intentClassifier
-from nodes.memoryRetriver import memoryRetriever
-from nodes.final_answer import final_answer_node
-from nodes.memory_to_write import memory_extractor
 from langgraph.prebuilt import ToolNode 
+from states.state import state
+from nodes.segmentation_node1 import segmentation_node1
+from nodes.classification_node2 import classification_node2 
+from nodes.memoryReader_node3b import memory_reader
+from nodes.memoryWriter_node3a import memory_writer
 import asyncio
+from nodes.finalAnswer_node4 import final_answer_node
 
-builder = StateGraph(TaskRouterState) 
+builder = StateGraph(state)
 
-# cnt = 1
-# def route_tools(state: TaskRouterState):
-#     """Route to 'tools' if last message has tool calls; else END."""
-#     global cnt
-#     if cnt > 4 :
-#         return END
-    
-#     cnt = cnt+1 
-#     messages = state.get("messages", [])
-#     if not messages:
-#         print("⚠️ No messages found — ending.")
-#         return "END"
+# router logic
+async def router_node(state):
+    tasks = []
 
-#     ai_message = messages[-1]
+    if state.get("memories_to_write"):
+        tasks.append(asyncio.create_task(
+            memory_writer(state["memories_to_write"], state["user_id"])
+        ))
 
-#     # Some models include empty tool_calls — we handle that safely
-#     if hasattr(ai_message, "tool_calls") and len(ai_message.tool_calls) > 0:   
-#         print("🧩 Tool calls found → routing to tools node.")
-#         return "tools"
+    if state.get("questions"):
+        tasks.append(asyncio.create_task(
+            memory_reader(state["questions"], state["user_id"])
+        ))
 
-#     print("✅ No tool calls → ending graph.")
-#     return "END"
+    if not tasks:
+            return state
 
-# builder.add_node("task_manager" , task_manager) 
-# def memoryRetriever_sync(state):
-#     return asyncio.run(memoryRetriever(state))
+    # === Process each result as soon as it finishes ===
+    for future in asyncio.as_completed(tasks):
+        res = await future
 
-builder.add_node("intent_classifier" , intentClassifier)
-builder.add_node("memoryRetriever", memoryRetriever , async_node=True)
-builder.add_node("final_answer_node" , final_answer_node)
-builder.add_node("memory_to_write" , memory_extractor) 
+        if not res:
+            continue
 
-builder.add_edge(START , "intent_classifier")
-builder.add_edge("intent_classifier" , "memoryRetriever" )
-builder.add_edge("memoryRetriever" , "final_answer_node")
+        # Merge the returned result into state
+        for key, val in res.items():
 
-# builder.add_edge("memoryAssigner" , END)
-builder.add_edge(START , "memory_to_write") 
-builder.add_edge("memory_to_write" , "final_answer_node")
+            # append list values
+            if key in state and isinstance(state[key], list) and isinstance(val, list):
+                state[key].extend(val)
 
-builder.add_edge("final_answer_node" , END)
+            # assign new values
+            else:
+                state[key] = val
+
+    return state
 
 
-# builder.add_edge("memoryAssigner" , "memoryRetriver") 
-# builder.add_edge("memoryRetriver" , "final_answer_node")
-# builder.add_edge("final_answer_node" , END)
+# total nodes
+builder.add_node("segmentation_node" , segmentation_node1) 
+builder.add_node("classification_node" , classification_node2)
+builder.add_node("memory_reader_node" , memory_reader) 
+builder.add_node("memory_writer_node" , memory_writer , is_async=True) 
+builder.add_node("router_node", router_node , is_async=True)
+builder.add_node("final_answer" , final_answer_node)
+
+#segmentation -> classification
+builder.add_edge(START , "segmentation_node")
+builder.add_edge("segmentation_node" , "classification_node")
+
+# classification -> routing to memory_write parallel with || memory_read
+builder.add_edge("classification_node" , "router_node") 
+builder.add_edge("router_node", "final_answer") 
+
+# final answer
+builder.add_edge("final_answer" , END)
 
 graph =  builder.compile()
 
 # from PIL import Image as PILImage
 # from IPython.display import Image, display
 # image_data = graph.get_graph().draw_mermaid_png()
-# with open("trip_graph.png", "wb") as f:
+# with open("task_router_graph.png", "wb") as f:
 #     f.write(image_data)
-# img = PILImage.open("trip_graph.png")
+# img = PILImage.open("task_router_graph.png")
 # img.show()
+

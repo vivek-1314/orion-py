@@ -8,3 +8,4 @@ data/
 models/
 *.sqlite3
 coverage
+venv/

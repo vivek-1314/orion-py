@@ -1,5 +1,11 @@
-fastapi
-uvicorn
-langgraph
-requests
-python-dotenv
+fastapi==0.124.4
+ipython==8.12.3
+langchain_groq==1.1.1
+langgraph==1.0.5
+langsmith==0.4.59
+Pillow==12.0.0
+pinecone==8.0.0
+psycopg2==2.9.11
+pydantic==2.12.5
+python-dotenv==1.2.1
+Requests==2.32.5
