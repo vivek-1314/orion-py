@@ -1,13 +1,14 @@
-# How to Use Orion
-    ## 📚 Documentation Index
-        - [Development Notes](docs/development.md)
-        - [System Design Overview](docs/system_design.md)
-        - [Memory Model & Retrieval](docs/system_design.md#Memory Subsystem)
-        - [Execution Flow](docs/system_design.md#High-Level Architecture)
+## Orion: Development Process and System Responsibilities
+    ## 📚 Documentation Index [detailed overview]
+- [Development Notes](docs/development.md)
+- [System Design Overview](docs/system_design.md)
+- [Memory Model & Retrieval](docs/system_design.md#memory-subsystem)
+- [Execution Flow](docs/system_design.md#high-level-architecture)
         
 
-## 1. Setup
+# How to use orion
 
+## 1. Setup
 ### Clone the repository:
 ```bash
 git clone https://github.com/<your_username>/orion.git
@@ -82,4 +83,5 @@ uvicorn orion_main:app --reload
 
     - Aggregates retrieved context
     - Invokes LLM once to generate response
+
     - Returns final answer
