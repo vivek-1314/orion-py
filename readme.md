@@ -1,4 +1,10 @@
 # How to Use Orion
+    ## 📚 Documentation Index
+        - [Development Notes](docs/development.md)
+        - [System Design Overview](docs/system_design.md)
+        - [Memory Model & Retrieval](docs/system_design.md#Memory Subsystem)
+        - [Execution Flow](docs/system_design.md#High-Level Architecture)
+        
 
 ## 1. Setup
 
