@@ -4,6 +4,10 @@ from starlette.responses import JSONResponse
 
 MAX_INPUT_LEN = 250
 
+# ============================================================
+# INPUT VALIDATION MIDDLEWARE [checks user input for validity and max length before forwarding to graph]
+# ============================================================
+
 class InputValidationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         if request.method == "POST" and request.url.path == "/run-graph":
