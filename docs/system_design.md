@@ -1,5 +1,5 @@
 # Orion — System Design (Technical)
-` Orion is designed as a memory-augmented, agent-orchestrated system that prioritizes: `
+` Orion (memory foundation) is designed as a memory-augmented, agent-orchestrated system that prioritizes: `
  - structured long-term memory
  - predictable behavior
  - low token usage
@@ -217,4 +217,5 @@ Future extensions will focus on:
 ## Final Note
 
 `` Orion is not optimized for demo behavior.
+
 It is optimized for long-term correctness, scalability, and personalization discipline. ``
