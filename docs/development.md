@@ -4,9 +4,14 @@
 
 ``` Orion is a proactive AI assistant focused on long-term personalization. ``` The goal is not faster answers, but better decisions over time—by understanding user identity, habits, preferences, and events in a durable, structured way.
 
-Most assistants today operate reactively: they respond when asked, assemble context at runtime, and discard most signals afterward. Orion explores a different direction—treating conversations as inputs to a memory system that improves future behavior.
+Most assistants are reactive—responding on demand and forgetting afterward. Orion treats conversations as memory, enabling it to act proactively by initiating interactions and surfacing insights based on learned patterns, not prompts.
 
-### Development Journey (Condensed)
+### Main focus areas:
+- Memory foundation — Extracting meaningful information from conversations and storing/retrieving it efficiently in a structured form.
+- Proactive intelligence — Building a proactive brain that uses this memory to drive autonomous, context-aware behavior.
+
+### Development Journey 
+> The first two phases failed, but they led to a stable base architecture that we are now evolving.
 
 * ##### ```Phase 1``` Prompt-Centric Experimentation
 
@@ -52,3 +57,4 @@ Key Learning: ```LLMs are powerful at reasoning, but unreliable as system contro
 ![System Architecture](images/langgraph_1.jpg)
 
 ![System Architecture](images/langgraph_2.jpg)
+
