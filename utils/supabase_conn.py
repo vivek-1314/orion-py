@@ -10,6 +10,10 @@ DATABASE_URL = os.environ.get("SUPABASE_URL")  # e.g. your Supabase URL
 
 db_pool = None  # will hold the connection pool
 
+# ============================================================
+# SUPABASE CONNECTION UTILITIES
+# ============================================================
+
 def init_db_pool():
     global db_pool
     if db_pool is None:

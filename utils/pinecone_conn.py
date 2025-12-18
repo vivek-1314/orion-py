@@ -5,6 +5,10 @@ from pinecone import Pinecone
 pinecone_client = None
 pinecone_index = None
 
+# ============================================================
+# PINECONE CONNECTION UTILITIES
+# ============================================================
+
 def init_pinecone():
     """
     Initialize the Pinecone client and connect to the existing index.

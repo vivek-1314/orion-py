@@ -1,6 +1,10 @@
 from llm import llm   # your LLM wrapper
 from langsmith import traceable
 
+# ============================================================
+# FINAL ANSWER NODE 4    [working for generating final answer using user input + fetched memories] (using llm)
+# ============================================================
+
 @traceable
 async def final_answer_node(state):
     """
@@ -31,8 +35,11 @@ async def final_answer_node(state):
         {memory_text if memory_text else "No relevant memories found."}
 
         INSTRUCTION:
+        GREETING_WORDS = ["hi", "hello", "hey", "hii", "hy", "hello orion"]
+            if user_input in **only** GREETING_WORDS:
+            return f"Hi Vivek! How can I help you?"
         Use the relevant memories naturally only if they improve understanding.
-        Your answer must be friendly, concise, and helpful.
+        Your answer must be friendly, concise, and helpful. refer user as vivek
         """
 
     # Call LLM

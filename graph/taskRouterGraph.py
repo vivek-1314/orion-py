@@ -10,7 +10,7 @@ from nodes.finalAnswer_node4 import final_answer_node
 
 builder = StateGraph(state)
 
-# router logic
+# router logic from classification to memory read / write
 async def router_node(state):
     tasks = []
 
@@ -48,7 +48,7 @@ async def router_node(state):
     return state
 
 
-# total nodes
+# overall nodes
 builder.add_node("segmentation_node" , segmentation_node1) 
 builder.add_node("classification_node" , classification_node2)
 builder.add_node("memory_reader_node" , memory_reader) 
@@ -60,7 +60,7 @@ builder.add_node("final_answer" , final_answer_node)
 builder.add_edge(START , "segmentation_node")
 builder.add_edge("segmentation_node" , "classification_node")
 
-# classification -> routing to memory_write parallel with || memory_read
+# classification -> routing to -> memory_write (parallel ||) memory_read
 builder.add_edge("classification_node" , "router_node") 
 builder.add_edge("router_node", "final_answer") 
 
@@ -68,12 +68,3 @@ builder.add_edge("router_node", "final_answer")
 builder.add_edge("final_answer" , END)
 
 graph =  builder.compile()
-
-# from PIL import Image as PILImage
-# from IPython.display import Image, display
-# image_data = graph.get_graph().draw_mermaid_png()
-# with open("task_router_graph.png", "wb") as f:
-#     f.write(image_data)
-# img = PILImage.open("task_router_graph.png")
-# img.show()
-

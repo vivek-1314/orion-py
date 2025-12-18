@@ -2,6 +2,10 @@ import json
 from llm import llm
 from langsmith import traceable
 
+# ============================================================
+# SEGMENTATION NODE 1    [working for segmenting user query into memories to write / fetch / ignore ]
+# ============================================================
+
 @traceable
 def segmentation_node1(state):
 
@@ -23,6 +27,7 @@ def segmentation_node1(state):
             b. memory_to_fetch → user is asking for stored info
             c. ignore → chit-chat or irrelevant
         3. Also detect if any segment implicitly requires memory fetch.
+        4. For memory_to_write, include an additional field _time that stores any detected time-related text for that segment.
 
         Return **ONLY valid JSON**  in this format:
         {{

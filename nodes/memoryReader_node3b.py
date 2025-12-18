@@ -4,6 +4,9 @@ from utils.embed import embed_text
 from psycopg2 import sql
 from langsmith import traceable
 
+# ============================================================
+# MEMORY READER NODE 3b    [working for reading/fetching memories from Pinecone + Postgres]
+# ============================================================
 @traceable
 async def memory_reader(input, user_id):
     """

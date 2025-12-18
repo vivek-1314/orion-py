@@ -8,10 +8,8 @@ from datetime import datetime
 from langsmith import traceable
 
 
-
-
 # ============================================================
-# MAIN WRITER (entry point for the graph)
+# MAIN WRITER NODE 3a    [working for writing memories to Pinecone + Postgres]
 # ============================================================
 
 @traceable
@@ -60,16 +58,25 @@ async def process_single_memory(memory, user_id):
     pinecone_id = str(uuid.uuid4())
 
     # TTL logic
-    if mem_type == "events":
-        ttl = memory.get("ttl") or (datetime.now() + timedelta(days=4)).timestamp()
+    if memory.get("ttl"):
+        ttl = memory.get("ttl")
     else:
         ttl = None
+    
+    print(ttl) 
+
+    
+    if memory.get("event_time"):
+        event_time = memory.get("event_time")
+    else:
+        event_time = None
 
     # Prepare Pinecone metadata
     metadata = {
         # "id": pinecone_id,
         "type": mem_type,
-        "user_id": user_id
+        "user_id": user_id,
+        "ttl": ttl.isoformat() if ttl else None
     }
 
     index = get_index()
@@ -82,7 +89,7 @@ async def process_single_memory(memory, user_id):
     await asyncio.gather(
         upsert_to_pinecone(index, pinecone_id, embedding, metadata, user_id, is_new, existing_id),
         add_memory_to_supabase(
-            conn, user_id, pinecone_id, mem_type, text, is_new, existing_id, embedding, ttl=ttl
+            conn, user_id, pinecone_id, mem_type, text, is_new, existing_id, embedding, event_time, ttl=ttl
         )
     )
 
@@ -121,7 +128,7 @@ async def upsert_to_pinecone(index, pinecone_id, embedding, metadata, user_names
 # POSTGRES APPEND
 # ============================================================
 
-async def add_memory_to_supabase(conn, user_id, pinecone_id, mem_type, text, is_new, existing_id,embedding, ttl):
+async def add_memory_to_supabase(conn, user_id, pinecone_id, mem_type, text, is_new, existing_id,embedding, event_time, ttl):
     """
     Add or update memory:
     - If is_new, insert into memories_pool and append reference to userMemory
@@ -139,28 +146,27 @@ async def add_memory_to_supabase(conn, user_id, pinecone_id, mem_type, text, is_
         # print("inside new") 
         # Insert new memory
         pool_query = """
-        INSERT INTO memories_pool (id, user_id, m_type, text, ttl, created_at)
-        VALUES (%s, %s, %s, %s, %s, NOW())
+        INSERT INTO memories_pool (id, user_id, m_type, text, ttl, event_time, created_at)
+        VALUES (%s, %s, %s, %s, %s, %s, NOW())
         ON CONFLICT (id) DO NOTHING;
         """
         cur.execute(
             pool_query,
-            (pinecone_id, user_id, mem_type, text, ttl)
+            (pinecone_id, user_id, mem_type, text, ttl, event_time)
         )
     else:
-        print("inside not new") 
         # Update existing memory
         update_pool_query = """
         UPDATE memories_pool
         SET text = %s,
             ttl = %s,
+            event_time = %s,
             updated_at = NOW()
         WHERE id = %s;
         """
-        print(text) 
         cur.execute(
             update_pool_query,
-            (text, ttl, existing_id)
+            (text, ttl, event_time, existing_id)
         )
 
     # Step 2: Ensure userMemory row exists
@@ -193,7 +199,7 @@ async def add_memory_to_supabase(conn, user_id, pinecone_id, mem_type, text, is_
     conn.commit()
 
 # ============================================================
-# check memory is new or not
+# check memory is new or not [so we can decide insert vs update]
 # ============================================================
 
 async def check_memory_is_new(index, embedding, user_id, mem_type, similarity_threshold=0.85):  
@@ -215,6 +221,7 @@ async def check_memory_is_new(index, embedding, user_id, mem_type, similarity_th
         existing_id = match.id
         if score >= similarity_threshold:
             # Memory is considered the same
+            print("✅ updated memory")
             return False, existing_id
 
     # Memory is new

@@ -8,13 +8,16 @@ from utils.embed import embed_text
 from utils.supabase_conn import init_db_pool, close_pool
 from utils.pinecone_conn import init_pinecone
 from langsmith import traceable
+from fastapi import FastAPI, HTTPException
+from middlewares.input_validation import InputValidationMiddleware
+from routers.graph_router import router as graph_router
+
 
 from dotenv import load_dotenv
 load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print()
     init_db_pool()
     init_pinecone()
     yield
@@ -26,25 +29,11 @@ class TaskRouterInput(BaseModel):
     input: str
     user_id: str = "user-123"
 
-# exposed point for running the graph
-@app.post("/run-graph")
-async def run_graph(payload: TaskRouterInput):
-    """
-    Runs the LangGraph task router graph with input state.
-    """
+app.add_middleware(InputValidationMiddleware)
 
-    initial_state = {
-        "input": payload.input,
-        "user_id": payload.user_id,
-    }
+# user query endpoint
+app.include_router(graph_router)
 
-    print("Initial state:", initial_state)
-
-    answer_state = await graph.ainvoke(initial_state)
-
-    print("final__state" , answer_state )
-
-    return {
-        "status": "success",
-        "final_state": answer_state
-    }
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}

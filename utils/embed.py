@@ -7,6 +7,7 @@ load_dotenv()
 JINA_API_KEY = os.getenv("JINA_API_KEY")
 JINA_URL = "https://api.jina.ai/v1/embeddings"
 
+# function to get embeddings from Jina
 def embed_text(text: str) -> list[float]:
     """
     Generate embedding using Jina's v3 model.
