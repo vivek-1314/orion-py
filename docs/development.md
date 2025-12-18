@@ -30,8 +30,8 @@ Key Learning: ```LLMs are powerful at reasoning, but unreliable as system contro
 - Better memory consistency
 - Clearer execution flow
 - Reduced hallucination risk
-- Limitations Discovered:
-- Too many LLM-dependent stages
+#### Limitations Discovered:
+- Too many LLM-dependent stages , Tokens flew away at an incredible rate
 - Latency increased with system complexity
 - Architecture was hard to optimize or scale
 
@@ -50,4 +50,5 @@ Key Learning: ```LLMs are powerful at reasoning, but unreliable as system contro
 ![memory Architecture](images/mem_1.jpg)
 ![memory Architecture](images/mem_2.jpg)
 ![System Architecture](images/langgraph_1.jpg)
+
 ![System Architecture](images/langgraph_2.jpg)
